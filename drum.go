@@ -19,7 +19,7 @@ type Pattern struct {
 type track struct {
 	id    int
 	name  string
-	steps []bool
+	steps []step
 }
 
 type step struct {
@@ -27,7 +27,7 @@ type step struct {
 }
 
 // Default string representation of Pattern
-func (p *Pattern) String() string {
+func (p Pattern) String() string {
 	var buffer bytes.Buffer
 
 	var template = "Saved with HW Version: %s\nTempo: %d"
@@ -35,15 +35,25 @@ func (p *Pattern) String() string {
 	for _, track := range p.tracks {
 		buffer.WriteString(fmt.Sprintf("\n%v", track))
 	}
+	buffer.WriteString("\n")
 	return buffer.String()
 }
 
-func (t *track) String() string {
-	var template = "(%d) %s\t|%s%s%s%s|%s%s%s%s|%s%s%s%s|%s%s%s%s|"
-	return fmt.Sprintf(template, t.id, t.name, t.steps)
+func (t track) String() string {
+	var buffer bytes.Buffer
+	var template = "(%d) %s\t"
+	buffer.WriteString(fmt.Sprintf(template, t.id, t.name))
+	for i, step := range t.steps {
+		if i%4 == 0 {
+			buffer.WriteString("|")
+		}
+		buffer.WriteString(fmt.Sprintf("%v", step))
+	}
+	buffer.WriteString("|")
+	return buffer.String()
 }
 
-func (s *step) String() string {
+func (s step) String() string {
 	if s.active {
 		return "x"
 	} else {
