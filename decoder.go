@@ -42,6 +42,10 @@ func DecodeFile(path string) (*Pattern, error) {
 		}
 
 		pattern.Tracks = append(pattern.Tracks, convertedTrack)
+		endString, _ := reader.Peek(6)
+		if string(endString) == "SPLICE" {
+			break
+		}
 	}
 
 	return &pattern, nil
