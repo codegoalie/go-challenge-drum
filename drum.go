@@ -15,12 +15,16 @@ type Pattern struct {
 	Tracks  []Track
 }
 
+// Track is the high level representation of each of the
+// tracks within a Pattern
 type Track struct {
 	Id    int
 	Name  string
 	Steps [16]Step
 }
 
+// Step is the high level representation of each beat
+// of a Track.
 type Step struct {
 	Active bool
 }
