@@ -21,8 +21,8 @@ func DecodeFile(path string) (*Pattern, error) {
 	var pattern Pattern
 
 	binary.Read(reader, binary.LittleEndian, &decoded)
-	pattern.version = strings.TrimRight(string(decoded.Version[:]), string([]byte{0x00}))
-	pattern.tempo = decoded.Tempo
+	pattern.Version = strings.TrimRight(string(decoded.Version[:]), string([]byte{0x00}))
+	pattern.Tempo = decoded.Tempo
 	for reader.Buffered() > 0 {
 		var id int32
 		binary.Read(reader, binary.LittleEndian, &id)
@@ -36,12 +36,12 @@ func DecodeFile(path string) (*Pattern, error) {
 		}
 		var decodedSteps [16]int8
 		binary.Read(reader, binary.LittleEndian, &decodedSteps)
-		convertedTrack := track{id: int(id), name: string(name[1:])}
+		convertedTrack := Track{Id: int(id), Name: string(name[1:])}
 		for i, intStep := range decodedSteps {
-			convertedTrack.steps[i] = step{active: intStep != 0}
+			convertedTrack.Steps[i] = Step{Active: intStep != 0}
 		}
 
-		pattern.tracks = append(pattern.tracks, convertedTrack)
+		pattern.Tracks = append(pattern.Tracks, convertedTrack)
 	}
 
 	return &pattern, nil

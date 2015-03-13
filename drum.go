@@ -9,21 +9,20 @@ import (
 
 // Pattern is the high level representation of the
 // drum pattern contained in a .splice file.
-// TODO: implement
 type Pattern struct {
-	version string
-	tempo   float32
-	tracks  []track
+	Version string
+	Tempo   float32
+	Tracks  []Track
 }
 
-type track struct {
-	id    int
-	name  string
-	steps [16]step
+type Track struct {
+	Id    int
+	Name  string
+	Steps [16]Step
 }
 
-type step struct {
-	active bool
+type Step struct {
+	Active bool
 }
 
 // Default string representation of Pattern
@@ -31,19 +30,19 @@ func (p Pattern) String() string {
 	var buffer bytes.Buffer
 
 	var template = "Saved with HW Version: %s\nTempo: %v"
-	buffer.WriteString(fmt.Sprintf(template, p.version, p.tempo))
-	for _, track := range p.tracks {
+	buffer.WriteString(fmt.Sprintf(template, p.Version, p.Tempo))
+	for _, track := range p.Tracks {
 		buffer.WriteString(fmt.Sprintf("\n%v", track))
 	}
 	buffer.WriteString("\n")
 	return buffer.String()
 }
 
-func (t track) String() string {
+func (t Track) String() string {
 	var buffer bytes.Buffer
 	var template = "(%d) %s\t"
-	buffer.WriteString(fmt.Sprintf(template, t.id, t.name))
-	for i, step := range t.steps {
+	buffer.WriteString(fmt.Sprintf(template, t.Id, t.Name))
+	for i, step := range t.Steps {
 		if i%4 == 0 {
 			buffer.WriteString("|")
 		}
@@ -53,8 +52,8 @@ func (t track) String() string {
 	return buffer.String()
 }
 
-func (s step) String() string {
-	if s.active {
+func (s Step) String() string {
+	if s.Active {
 		return "x"
 	} else {
 		return "-"
