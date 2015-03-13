@@ -17,35 +17,9 @@ func DecodeFile(path string) (*Pattern, error) {
 	}
 	reader := bufio.NewReader(file)
 
-	var decoded decodedFile
-	var pattern Pattern
-
-	binary.Read(reader, binary.LittleEndian, &decoded)
-	pattern.Version = strings.TrimRight(string(decoded.Version[:]), string([]byte{0x00}))
-	pattern.Tempo = decoded.Tempo
-	for reader.Buffered() > 0 {
-		var id int32
-		binary.Read(reader, binary.LittleEndian, &id)
-
-		next, err := reader.Peek(1)
-		var name []byte
-		for err == nil && next[0] != 0 && next[0] != 1 {
-			charByte, _ := reader.ReadByte()
-			name = append(name, charByte)
-			next, err = reader.Peek(1)
-		}
-		var decodedSteps [16]int8
-		binary.Read(reader, binary.LittleEndian, &decodedSteps)
-		convertedTrack := Track{Id: int(id), Name: string(name[1:])}
-		for i, intStep := range decodedSteps {
-			convertedTrack.Steps[i] = Step{Active: intStep != 0}
-		}
-
-		pattern.Tracks = append(pattern.Tracks, convertedTrack)
-		endString, _ := reader.Peek(6)
-		if string(endString) == "SPLICE" {
-			break
-		}
+	pattern := readVersionAndTempo(reader)
+	for anyTracks(reader) {
+		pattern.Tracks = append(pattern.Tracks, readTrack(reader))
 	}
 
 	return &pattern, nil
@@ -57,4 +31,64 @@ type decodedFile struct {
 	Version [11]byte
 	_       [21]byte
 	Tempo   float32
+}
+
+func readVersionAndTempo(reader *bufio.Reader) Pattern {
+	var decoded decodedFile
+	var pattern Pattern
+
+	binary.Read(reader, binary.LittleEndian, &decoded)
+	pattern.Version = trimVersion(decoded.Version)
+	pattern.Tempo = decoded.Tempo
+
+	return pattern
+}
+
+func readTrack(reader *bufio.Reader) Track {
+	return Track{
+		Id:    readTrackId(reader),
+		Name:  readTrackName(reader),
+		Steps: readTrackSteps(reader),
+	}
+}
+
+func readTrackId(reader *bufio.Reader) int {
+	var id int32
+
+	binary.Read(reader, binary.LittleEndian, &id)
+	return int(id)
+}
+
+func readTrackName(reader *bufio.Reader) string {
+	var name []byte
+
+	next, err := reader.Peek(1)
+	for err == nil && next[0] != 0 && next[0] != 1 {
+		charByte, _ := reader.ReadByte()
+		name = append(name, charByte)
+		next, err = reader.Peek(1)
+	}
+
+	return string(name[1:])
+}
+
+func readTrackSteps(reader *bufio.Reader) [16]Step {
+	var decodedSteps [16]int8
+	var steps [16]Step
+
+	binary.Read(reader, binary.LittleEndian, &decodedSteps)
+	for i, intStep := range decodedSteps {
+		steps[i] = Step{Active: intStep != 0}
+	}
+
+	return steps
+}
+
+func anyTracks(reader *bufio.Reader) bool {
+	endString, err := reader.Peek(6)
+	return reader.Buffered() > 0 && err == nil && string(endString) != "SPLICE"
+}
+
+func trimVersion(rawVersion [11]byte) string {
+	return strings.TrimRight(string(rawVersion[:]), string([]byte{0x00}))
 }
