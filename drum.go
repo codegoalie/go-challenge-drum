@@ -12,14 +12,14 @@ import (
 // TODO: implement
 type Pattern struct {
 	version string
-	tempo   int
+	tempo   float32
 	tracks  []track
 }
 
 type track struct {
 	id    int
 	name  string
-	steps []step
+	steps [16]step
 }
 
 type step struct {
@@ -30,7 +30,7 @@ type step struct {
 func (p Pattern) String() string {
 	var buffer bytes.Buffer
 
-	var template = "Saved with HW Version: %s\nTempo: %d"
+	var template = "Saved with HW Version: %s\nTempo: %v"
 	buffer.WriteString(fmt.Sprintf(template, p.version, p.tempo))
 	for _, track := range p.tracks {
 		buffer.WriteString(fmt.Sprintf("\n%v", track))
