@@ -59,7 +59,7 @@ func (t Track) String() string {
 func (s Step) String() string {
 	if s.Active {
 		return "x"
-	} else {
-		return "-"
 	}
+
+	return "-"
 }
