@@ -46,13 +46,13 @@ func readVersionAndTempo(reader *bufio.Reader) Pattern {
 
 func readTrack(reader *bufio.Reader) Track {
 	return Track{
-		Id:    readTrackId(reader),
+		ID:    readTrackID(reader),
 		Name:  readTrackName(reader),
 		Steps: readTrackSteps(reader),
 	}
 }
 
-func readTrackId(reader *bufio.Reader) int {
+func readTrackID(reader *bufio.Reader) int {
 	var id int32
 
 	binary.Read(reader, binary.LittleEndian, &id)

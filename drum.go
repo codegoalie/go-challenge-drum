@@ -18,7 +18,7 @@ type Pattern struct {
 // Track is the high level representation of each of the
 // tracks within a Pattern
 type Track struct {
-	Id    int
+	ID    int
 	Name  string
 	Steps [16]Step
 }
@@ -45,7 +45,7 @@ func (p Pattern) String() string {
 func (t Track) String() string {
 	var buffer bytes.Buffer
 	var template = "(%d) %s\t"
-	buffer.WriteString(fmt.Sprintf(template, t.Id, t.Name))
+	buffer.WriteString(fmt.Sprintf(template, t.ID, t.Name))
 	for i, step := range t.Steps {
 		if i%4 == 0 {
 			buffer.WriteString("|")
